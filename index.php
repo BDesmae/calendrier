@@ -1,13 +1,79 @@
+<?php
+session_start();
+
+try
+{
+    $bdd = new PDO('mysql:host=localhost;dbname=calendrier;charset=utf8', 'root', 'root');
+}
+catch (Exception $e)
+{
+    die('Erreur : ' . $e->getMessage());
+}
+
+if(isset($_SESSION['id']) AND $_SESSION['id'] > 0)
+{
+    $getid = intval($_SESSION['id']);
+    $requser = $bdd->prepare("SELECT * FROM users WHERE id=?");
+    $requser->execute(array($getid));
+    $userinfo = $requser->fetch();
+
+  
+
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="style.css"/>
+<link rel="stylesheet" type="text/css" href="style.php"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
 </head>
 <body>
- 
+<h2>Liste des projets prévus: </h2>
+
+<div class="container">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nom du projet</th>
+        <th>Date de début</th>
+        <th>Date de fin</th>
+        <th>Commentaire</th>
+        <th>Couleur</th>
+      </tr>
+    </thead>
+    <tbody>
+
 <?php
-const NB_MOIS = 12;
-const NB_JOURS_MAX = 31;
+
+$requete = $bdd->query('SELECT * from projet ORDER BY date_deb');
+while ($liste_projet = $requete->fetch()){?>
+
+      <tr>
+        <td><?php echo $liste_projet['nom_projet'] ?></td>
+        <td><?php echo $liste_projet['date_deb'] ?></td>
+        <td><?php echo $liste_projet['date_fin'] ?></td>
+        <td><?php echo $liste_projet['commentaire'] ?> </td>
+        <td><?php echo $liste_projet['color'] ?> </td>
+      </tr>
+<?php
+}
+echo '
+    </tbody>
+  </table>
+</div>';
+
+
+
+
+
+define('NB_MOIS', '12');
+define('NB_JOURS_MAX', '31');
+//const NB_MOIS = 12;
+//const NB_JOURS_MAX = 31;
 
 function DessinerCalendrier(){
   
@@ -176,7 +242,7 @@ function DessinerCalendrier(){
     // Necessaire car un array est à l'indice 0 pour la première valeur à extraire
     // ce qui n'est pas le cas pour les numéros semaines et mois qui commencent toujours à 1
     $lMoisCourant--;
-    echo "<td rowspan='5' class='mois'> $lNomMois[$lMoisCourant] </td>"."\n";
+    echo "<td rowspan='2' class='mois'> $lNomMois[$lMoisCourant] </td>"."\n";
     $lMoisCourant++;
     //On récupère ne nombre de jours du mois courant.
     $lNombreDeJourDuMois = cal_days_in_month(CAL_GREGORIAN,$lMoisCourant,$lAnneeCourante);
@@ -210,9 +276,10 @@ function DessinerCalendrier(){
 
     echo "</tr>"."\n";
     //On dessine les lignes projet
-    for ($lNbLignes = 1; $lNbLignes <=4; $lNbLignes++){
+     for ($lNbLignes = 1; $lNbLignes <=1; $lNbLignes++){
 
       echo "<tr>"."\n";
+      
       //On colorie les cases WeekEnd pour chaque ligne projet
       for ($lNumeroDuJour = 1; $lNumeroDuJour <= NB_JOURS_MAX; $lNumeroDuJour++) {
           
@@ -225,13 +292,16 @@ function DessinerCalendrier(){
             }
             
           }
+          
           //Si un jour non travaillé est détecté (drapeau lJourTravaille à FAUX), alors on applique la class weekend.
           if ($lJourTravaille == true){
 
-            echo "<td>  </td>"."\n";
+            
+            include 'afficher_projet.php';
 
-          }else{
-
+            
+          } else{
+              
             echo "<td class='weekend'>  </td>"."\n";
 
             // On reinitialise le drapeau à VRAI pour pouvoir redetecter un jour non travaillé
@@ -246,6 +316,7 @@ function DessinerCalendrier(){
       echo "</tr>"."\n";
 
     }
+
     //On efface l'array lJoursWeekEndDuMois pour le prochain tour de boucle 
     unset($lJoursWeekEndDuMois);
 
@@ -256,6 +327,8 @@ function DessinerCalendrier(){
 }
 
 
+
+        
 DessinerCalendrier();
 
 ?>
@@ -268,8 +341,21 @@ DessinerCalendrier();
 <form action="supprimer.php">
   <input type="submit" value="Supprimer" />
 </form>
+<?php
+if($userinfo['id'] == $_SESSION['id'])
+        {
+            ?>
 
+            <a href="deconnexion.php">Se déconnecter</a>
+            <?php
+        }
+        ?>
 <br><br><br>
 
 </body>
 </html>
+
+<?php
+}
+else header('Location:connexion.php')
+?>

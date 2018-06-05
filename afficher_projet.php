@@ -1,10 +1,5 @@
 <?php
-/* if ($lJourTravaille == false){
-    echo "<td class='weekend'>  </td>"."\n";
 
-    $lJourTravaille = true;
-  }
-else{ */
   //connexion base de données
 try
 {
@@ -16,37 +11,85 @@ catch (Exception $e)
 }
 
 //requête
-$req = $bdd->query('SELECT date_deb, date_fin FROM projet');
+$req = $bdd->query('SELECT date_deb, date_fin, color FROM projet');
 
+$projet_off = true;
 
 while ($donnees = $req->fetch()){
   $explode_deb = explode("-", $donnees['date_deb']);
   $explode_fin = explode("-", $donnees['date_fin']);
 
+  $jour_deb = $explode_deb[2];
+  $mois_deb = $explode_deb[1];
+  $annee_deb = $explode_deb[0];
 
-  if ($lNumeroDuJour >= $explode_fin[2] AND $lNumeroDuJour <= $explode_deb[2] AND $lMoisCourant >= $explode_fin[1] AND $lMoisCourant <= $explode_deb[1] AND $lAnneeCourante >= $explode_fin[0] AND $lAnneeCourante <= $explode_deb[0])
-    {
-      echo "<td class='projet'>  </td>"."\n";
-    }
-    else 
-    {
-      echo "<td>  </td>";
-    }  
+  $jour_fin = $explode_fin[2];
+  $mois_fin = $explode_fin[1];
+  $annee_fin = $explode_fin[0];
+
+  $color = $donnees['color'];
   
-}
-/* $date = array($lAnneeCourante, $lMoisCourant, $lNumeroDuJour);
-$implode_date = implode("-", $date);
+  if($lMoisCourant == $mois_deb AND $lMoisCourant != $mois_fin){
 
-while($donnees = $req->fetch()){
+    if ($lNumeroDuJour >= $jour_deb)
+      {
+        echo "<td style='background: ". $color . " '>  </td>"."\n";
+      }
+      else 
+      {
+        echo "<td>  </td>"."\n";
+      }
+      $projet_off = false;
+      break;
+    }
 
-  if ($implode_date >= $donnees['date_deb'] AND $implode_date <= $donnees['date_fin'])
-  {
-    echo "<td class='projet'>  </td>"."\n";
-  }
-  else{
-    echo "<td>  </td>";
-  }
+    
+    
+ 
+    elseif($lMoisCourant == $mois_fin AND $lMoisCourant != $mois_deb){
+
+      if ($lNumeroDuJour <= $jour_fin)
+        {
+          echo "<td style='background: ". $color . " '>  </td>"."\n";
+        }
+        else 
+        {
+          echo "<td>  </td>"."\n";
+        }
+        $projet_off = false;
+        break;
+      }
+
+    elseif($lMoisCourant == $mois_deb AND $lMoisCourant == $mois_fin)
+    {
+      if ($lNumeroDuJour >= $jour_deb AND $lNumeroDuJour <= $jour_fin)
+      {
+        echo "<td style='background: ". $color . " '>  </td>"."\n";
+      }
+      else 
+      {
+        echo "<td>  </td>"."\n";
+      }
+      $projet_off = false;
+      break;
+    }
+
+    elseif($mois_deb < $lMoisCourant AND $lMoisCourant < $mois_fin)
+    {
+      echo "<td style='background: ". $color . " '>  </td>"."\n";
+      $projet_off = false;
+      break;
+    }
+    
+ }
+/* if ($lNumeroDuJour == $jour_fin AND $lMoisCourant == $mois_fin)
+{
+  break;
 } */
+if($projet_off == true){
+  echo "<td>  </td>"."\n";
+}
+
 
 
 $req->closeCursor();
