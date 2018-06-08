@@ -24,7 +24,7 @@ if(isset($_SESSION['id']) AND $_SESSION['id'] > 0)
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="style.php"/>
+<link rel="stylesheet" type="text/css" href="style.css"/>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -32,7 +32,7 @@ if(isset($_SESSION['id']) AND $_SESSION['id'] > 0)
 
 </head>
 <body>
-<h2>Liste des projets prévus: </h2>
+<h2>Liste des déplacements: </h2>
 
 <div class="container">
   <table class="table table-striped">
@@ -48,16 +48,16 @@ if(isset($_SESSION['id']) AND $_SESSION['id'] > 0)
     <tbody>
 
 <?php
-
+include 'color.php';
 $requete = $bdd->query('SELECT * from projet ORDER BY date_deb');
 while ($liste_projet = $requete->fetch()){?>
-
+<?php $implode = implode(",", html2rgb($liste_projet['color']));?>
       <tr>
         <td><?php echo $liste_projet['nom_projet'] ?></td>
         <td><?php echo $liste_projet['date_deb'] ?></td>
         <td><?php echo $liste_projet['date_fin'] ?></td>
         <td><?php echo $liste_projet['commentaire'] ?> </td>
-        <td><?php echo $liste_projet['color'] ?> </td>
+        <?php echo '<td style="background-color:rgb('. $implode.') "> </td>'?>
       </tr>
 <?php
 }

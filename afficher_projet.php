@@ -11,7 +11,7 @@ catch (Exception $e)
 }
 
 //requête
-$req = $bdd->query('SELECT date_deb, date_fin, color FROM projet');
+$req = $bdd->query('SELECT date_deb, date_fin, color FROM projet ORDER BY date_deb');
 
 $projet_off = true;
 
@@ -29,18 +29,21 @@ while ($donnees = $req->fetch()){
 
   $color = $donnees['color'];
   
+if ($annee_deb == $lAnneeCourante AND $annee_fin == $lAnneeCourante){
+
   if($lMoisCourant == $mois_deb AND $lMoisCourant != $mois_fin){
 
     if ($lNumeroDuJour >= $jour_deb)
       {
         echo "<td style='background: ". $color . " '>  </td>"."\n";
+        
       }
       else 
       {
-        echo "<td>  </td>"."\n";
+        continue;
       }
       $projet_off = false;
-      break;
+      
     }
 
     
@@ -51,13 +54,14 @@ while ($donnees = $req->fetch()){
       if ($lNumeroDuJour <= $jour_fin)
         {
           echo "<td style='background: ". $color . " '>  </td>"."\n";
+          
         }
         else 
         {
-          echo "<td>  </td>"."\n";
+          continue;
         }
         $projet_off = false;
-        break;
+        
       }
 
     elseif($lMoisCourant == $mois_deb AND $lMoisCourant == $mois_fin)
@@ -65,30 +69,37 @@ while ($donnees = $req->fetch()){
       if ($lNumeroDuJour >= $jour_deb AND $lNumeroDuJour <= $jour_fin)
       {
         echo "<td style='background: ". $color . " '>  </td>"."\n";
+        
       }
       else 
       {
-        echo "<td>  </td>"."\n";
+        continue;    
       }
       $projet_off = false;
-      break;
+      
     }
 
     elseif($mois_deb < $lMoisCourant AND $lMoisCourant < $mois_fin)
     {
       echo "<td style='background: ". $color . " '>  </td>"."\n";
       $projet_off = false;
-      break;
+      continue;
     }
     
+    if ($projet_off == false)
+    {
+      break;
+    }
  }
+}
 /* if ($lNumeroDuJour == $jour_fin AND $lMoisCourant == $mois_fin)
 {
-  break;
+  continue;
 } */
 if($projet_off == true){
   echo "<td>  </td>"."\n";
 }
+
 
 
 
